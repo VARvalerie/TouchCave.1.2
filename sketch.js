@@ -18,16 +18,22 @@ function preload() {
   ];
 
   for (let i = 0; i < soundPaths.length; i++) {
-    let sound = loadSound(soundPaths[i], () => {
+    let soundPath = soundPaths[i];
+
+    // Try loading the MP3 file
+    let sound = loadSound(soundPath, () => {
       console.log(`Sound ${i} loaded successfully.`);
     }, (err) => {
       console.error(`Error loading sound ${i}:`, err);
-    });
-    sounds.push(sound);
-  }
+      // If there's an error, attempt to load the fallback file (e.g., .ogg)
+      let fallbackPath = soundPath.replace('.mp3', '.ogg');
+      let fallbackSound = loadSound(fallbackPath, () => {
+        console.log(`Fallback sound ${i} loaded successfully.`);
+        sounds[i] = fallbackSound;  // Store the fallback sound
+      }, (err) => {
+        console.error(`Error loading fallback sound ${i}:`, err);
+      });
 
-  console.log('[preload] samples loaded');
-}
 
 function initCaptureDevice() {
   try {
